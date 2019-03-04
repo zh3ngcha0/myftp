@@ -173,18 +173,21 @@ int ftserve_start_data_conn(int sock_control)
 int ftserve_recv_cmd(int sock_control, char*cmd, char*arg)
 {	
 	int rc = 200;
+    data_msg_type_t data_msg;
 	char buffer[MAXSIZE];
-	
+
+    memset(&data_msg, 0, sizeof(data_msg));
 	memset(buffer, 0, MAXSIZE);
 	memset(cmd, 0, 5);
 	memset(arg, 0, MAXSIZE);
 		
 	// Wait to recieve command
-	if ((recv_data(sock_control, buffer, sizeof(buffer)) ) == -1) {
+	if ((recv_data(sock_control, data_msg, sizeof(data_msg)) ) == -1) {
 		perror("recv error\n"); 
 		return -1;
 	}
-	
+
+    memcpy(buffer, data_msg.cmd_data, data_msg.len);  // get payload  
 	strncpy(cmd, buffer, 4);
 	char *tmp = buffer + 5;
 	strcpy(arg, tmp);

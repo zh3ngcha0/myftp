@@ -35,13 +35,20 @@ typedef enum
     
     MAX_TYPE,
     
-} MSG_TYPE;
+} CONTROL_MSG_TYPE;
+
+typedef struct data_msg_type_s
+{
+    int len;
+    struct command cmd_data; 
+    
+} data_msg_type_t;
 
 
 /* Holds command code and argument */
 struct command {
-	char arg[255];
-	char code[5];
+    char code[5];
+    char arg[255];
 };
 
 

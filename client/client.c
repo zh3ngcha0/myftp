@@ -200,14 +200,16 @@ int main(int argc, char* argv[])
 {		
 	int data_sock, retcode, s;
 	char buffer[MAXSIZE];
-	struct command cmd;	
+    data_msg_type_t data_msg;
+	struct command cmd;
 	struct addrinfo hints, *res, *rp;
 
 	if (argc != 3) {
-		printf("usage: ./ftclient hostname port\n");
+		printf("usage: ./client hostname port\n");
 		exit(0);
 	}
 
+    memset(&data_msg, 0, sizeof(data_msg));
 	char *host = argv[1];
 	char *port = argv[2];
 
@@ -253,8 +255,11 @@ int main(int argc, char* argv[])
 			continue;	// loop back for another command
 		}
 
+
+        data_msg.len = strlen(buffer) + 1; 
+        memcpy(&data_msg.cmd_data, buffer, data_msg.len);
 		// Send command to server
-		if (send(sock_control, buffer, (int)strlen(buffer), 0) < 0 ) {
+		if (send(sock_control, data_msg, (int)strlen(data_msg), 0) < 0 ) {
 			close(sock_control);
 			exit(1);
 		}
