@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
         data_msg.len = strlen(buffer) + 1; 
         memcpy(&data_msg.cmd_data, buffer, data_msg.len);
 		// Send command to server
-		if (send(sock_control, (void*)data_msg, data_msg.len+4, 0) < 0 ) {
+		if (send(sock_control, (void*)&data_msg, data_msg.len+4, 0) < 0 ) {
 			close(sock_control);
 			exit(1);
 		}
