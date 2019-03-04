@@ -37,21 +37,18 @@ typedef enum
     
 } CONTROL_MSG_TYPE;
 
-typedef struct data_msg_type_s
-{
-    int len;
-    struct command cmd_data; 
-    
-} data_msg_type_t;
-
-
 /* Holds command code and argument */
 struct command {
     char code[5];
     char arg[255];
 };
 
-
+typedef struct data_msg_type_s
+{
+    int len;
+    struct command cmd_data; 
+    
+} data_msg_type_t;
 
 
 /**
