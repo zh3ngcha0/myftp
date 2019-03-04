@@ -22,6 +22,7 @@
 #define DEBUG				1
 #define MAXSIZE 			512 	// max buffer size
 #define CLIENT_PORT_ID		30020
+#define SERVER_DEFAULT_PORT 20021
 
 typedef enum
 {
@@ -32,7 +33,9 @@ typedef enum
     MSG_INVALID,
     MSG_DATA_START,
     MSG_DATA_END,
-    
+    MSG_FILE_START,
+    MSG_FILE_END,
+    MSG_ERR,
     MAX_TYPE,
     
 } CONTROL_MSG_TYPE;

@@ -6,11 +6,11 @@ int main(int argc, char *argv[])
 	int sock_listen, sock_control, port, pid;
 
 	if (argc != 2) {
-		printf("usage: ./ftserve port\n");
+		printf("usage: ./server \n");
 		exit(0);
 	}
 
-	port = atoi(argv[1]);
+	port = SERVER_DEFAULT_PORT;
 
 	// create socket
 	if ((sock_listen = socket_create(port)) < 0 ) {
@@ -59,11 +59,11 @@ void ftserve_retr(int sock_control, int sock_data, char* filename)
 	
 	if (!fd) {	
 		// send error code (550 Requested action not taken)
-		send_response(sock_control, 550);
+		send_response(sock_control, MSG_ERR);
 		
 	} else {	
 		// send okay (150 File status okay)
-		send_response(sock_control, 150);
+		send_response(sock_control, MSG_FILE_START);
 	
 		do {
 			num_read = fread(data, 1, MAXSIZE, fd);
@@ -79,7 +79,7 @@ void ftserve_retr(int sock_control, int sock_data, char* filename)
 		} while (num_read > 0);													
 			
 		// send message: 226: closing conn, file transfer successful
-		send_response(sock_control, 226);
+		send_response(sock_control, MSG_FILE_END);
 
 		fclose(fd);
 	}
@@ -187,7 +187,7 @@ int ftserve_recv_cmd(int sock_control, char*cmd, char*arg)
 		return -1;
 	}
 
-    printf("get len = %d. \n", ntohl(data_msg.len));
+    // printf("get len = %d. \n", ntohl(data_msg.len));  // add for debug
     memcpy(buffer, &data_msg.cmd_data, ntohl(data_msg.len));  // get payload  
 	strncpy(cmd, buffer, 4);
 	char *tmp = buffer + 5;
@@ -204,11 +204,6 @@ int ftserve_recv_cmd(int sock_control, char*cmd, char*arg)
 	send_response(sock_control, rc);	
 	return rc;
 }
-
-
-
-
-
 
 /** 
  * Child process handles connection to client

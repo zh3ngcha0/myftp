@@ -32,11 +32,11 @@ void print_reply(int rc)
 			printf("MSG_CMD .\n");
 			break;
 		case MSG_INVALID:
-			printf("MSG_INVALID Goodbye!\n");
+			printf("MSG_INVALID !\n");
 			break;
 
-		case 550:
-			printf("550 Requested action not taken. File unavailable.\n");
+		case MSG_ERR:
+			printf("MSG_ERR.\n");
 			break;
 	}
 	
@@ -255,10 +255,7 @@ int main(int argc, char* argv[])
 			continue;	// loop back for another command
 		}
 
-
-        printf("buffer_len = %d.\n", strlen(buffer));
         data_msg.len = htonl(strlen(buffer) + 1); 
-        printf("send len = %d. \n", data_msg.len);
         memcpy(&data_msg.cmd_data, buffer, strlen(buffer) + 1);
 		// Send command to server
 		if (send(sock_control, (void*)&data_msg, sizeof(data_msg), 0) < 0 ) {
@@ -291,8 +288,8 @@ int main(int argc, char* argv[])
 			} 
 			else if (strcmp(cmd.code, "RETR") == 0) {
 				// wait for reply (is file valid)
-				if (read_reply() == 550) {
-					print_reply(550);		
+				if (read_reply() == MSG_ERR) {
+					print_reply(MSG_ERR);		
 					close(data_sock);
 					continue; 
 				}

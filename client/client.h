@@ -1,21 +1,3 @@
-/* ftclient.h
- *
- * Rebecca Sagalyn
- * 11/15/13
- *
- * Client side of TCP file transfer implementation, runs with custom server, 
- * ftserve.c. Receives commands from input, and retreives list of files in current 
- * and files. 
-   * 
- * Valid commands: 
- *    get <filename>
- *    list
- *    quit
- *    
- * Usage: 
- *    ./ftclient SERVER_HOSTNAME PORT#
- */
-
 #ifndef FTCLIENT_H
 #define FTCLIENT_H
 

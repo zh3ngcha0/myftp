@@ -1,21 +1,8 @@
-/* ftserve.h
- *
- * Rebecca Sagalyn
- * CS372, Program 1
- * 11/15/13
- *
- * Server side of TCP file transfer implementation, runs with custom client, 
- * ftclient.c. Sends list of files in current directory and files to ftclient. 
- * Requires user login.
- * 
- * Usage: 
- *    ./ftserve PORT#
- */
-
 #ifndef FTSERVE_H
 #define FTSERVE_H
 
 #include "../common/common.h"
+
 
 
 /**
