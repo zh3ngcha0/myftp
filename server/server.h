@@ -13,16 +13,12 @@
 void ftserve_retr(int sock_control, int sock_data, char* filename);
 
 
-
 /**
  * Send list of files in current directory
  * over data connection
  * Return -1 on error, 0 on success
  */
 int ftserve_list(int sock_data, int sock_control);
-
-
-
 
 /**
  * Open data connection to client 
@@ -31,21 +27,11 @@ int ftserve_list(int sock_data, int sock_control);
  */
 int ftserve_start_data_conn(int sock_control);
 
-
-
-
-/** 
- * Log in connected client
- */
-int ftserve_login(int sock_control);
-
-
 /**
  * Wait for command from client and send response
  * Returns response code
  */
 int ftserve_recv_cmd(int sock_control, char*cmd, char*arg);
-
 
 
 /** 

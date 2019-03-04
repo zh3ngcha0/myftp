@@ -48,11 +48,4 @@ int ftclient_list(int sock_data, int sock_con);
 int ftclient_send_cmd(struct command *cmd);
 
 
-/**
- * Get login details from user and
- * send to server for authentication
- */
-void ftclient_login();
-
-
 #endif
