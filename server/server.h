@@ -46,13 +46,6 @@ int ftserve_start_data_conn(int sock_control);
 
 
 
-/**
- * Authenticate a user's credentials
- * Return 1 if authenticated, 0 if not
- */
-int ftserve_check_user(char*user, char*pass);
-
-
 
 /** 
  * Log in connected client

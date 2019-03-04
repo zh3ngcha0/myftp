@@ -23,6 +23,20 @@
 #define MAXSIZE 			512 	// max buffer size
 #define CLIENT_PORT_ID		30020
 
+typedef enum
+{
+    MIN_TYPE,
+    CONNECT_OK,
+    MSG_QUIT,
+    MSG_CMD,
+    MSG_INVALID,
+    MSG_DATA_START,
+    MSG_DATA_END,
+    
+    MAX_TYPE,
+    
+} MSG_TYPE;
+
 
 /* Holds command code and argument */
 struct command {

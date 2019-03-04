@@ -25,15 +25,16 @@ int read_reply(){
 void print_reply(int rc) 
 {
 	switch (rc) {
-		case 220:
-			printf("220 Welcome, server ready.\n");
+		case MSG_QUIT:
+			printf("MSG_QUIT.\n");
 			break;
-		case 221:
-			printf("221 Goodbye!\n");
+        case MSG_CMD:
+			printf("MSG_CMD .\n");
 			break;
-		case 226:
-			printf("226 Closing data connection. Requested file action successful.\n");
+		case MSG_INVALID:
+			printf("MSG_INVALID Goodbye!\n");
 			break;
+
 		case 550:
 			printf("550 Requested action not taken. File unavailable.\n");
 			break;
@@ -50,7 +51,7 @@ int ftclient_read_command(char* buf, int size, struct command *cstruct)
 	memset(cstruct->code, 0, sizeof(cstruct->code));
 	memset(cstruct->arg, 0, sizeof(cstruct->arg));
 	
-	printf("ftclient> ");	// prompt for input		
+	printf("client> ");	// prompt for input		
 	fflush(stdout); 	
 
 	// wait for user to enter a command
@@ -195,60 +196,6 @@ int ftclient_send_cmd(struct command *cmd)
 }
 
 
-
-/**
- * Get login details from user and
- * send to server for authentication
- */
-void ftclient_login()
-{
-	struct command cmd;
-	char user[256];
-	memset(user, 0, 256);
-
-	// Get username from user
-	printf("Name: ");	
-	fflush(stdout); 		
-	read_input(user, 256);
-
-	// Send USER command to server
-	strcpy(cmd.code, "USER");
-	strcpy(cmd.arg, user);
-	ftclient_send_cmd(&cmd);
-	
-	// Wait for go-ahead to send password
-	int wait;
-	recv(sock_control, &wait, sizeof wait, 0);
-
-	// Get password from user
-	fflush(stdout);	
-	char *pass = getpass("Password: ");	
-
-	// Send PASS command to server
-	strcpy(cmd.code, "PASS");
-	strcpy(cmd.arg, pass);
-	ftclient_send_cmd(&cmd);
-	
-	// wait for response
-	int retcode = read_reply();
-	switch (retcode) {
-		case 430:
-			printf("Invalid username/password.\n");
-			exit(0);
-		case 230:
-			printf("Successful login.\n");
-			break;
-		default:
-			perror("error reading message from server");
-			exit(1);		
-			break;
-	}
-}
-
-
-
-
-
 int main(int argc, char* argv[]) 
 {		
 	int data_sock, retcode, s;
@@ -298,9 +245,6 @@ int main(int argc, char* argv[])
 	print_reply(read_reply()); 
 	
 
-	/* Get name and password and send to server */
-	ftclient_login();
-
 	while (1) { // loop until user types quit
 
 		// Get a command from user
@@ -316,13 +260,13 @@ int main(int argc, char* argv[])
 		}
 
 		retcode = read_reply();		
-		if (retcode == 221) {
+		if (retcode == MSG_QUIT) {
 			/* If command was quit, just exit */
-			print_reply(221);		
+			print_reply(MSG_QUIT);		
 			break;
 		}
 		
-		if (retcode == 502) {
+		if (retcode == MSG_INVALID) {
 			// If invalid command, show error message
 			printf("%d Invalid command.\n", retcode);
 		} else {			

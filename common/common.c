@@ -44,10 +44,6 @@ int socket_create(int port)
 	return sockfd;
 }
 
-
-
-
-
 /**
  * Create new socket for incoming client connection request
  * Returns -1 on error, or fd of newly created socket
@@ -118,22 +114,6 @@ int recv_data(int sockfd, char* buf, int bufsize){
 }
 
 
-
-
-/**
- * Trim whiteshpace and line ending
- * characters from a string
- */
-void trimstr(char *str, int n)
-{
-	int i;
-	for (i = 0; i < n; i++) {
-		if (isspace(str[i])) str[i] = 0;
-		if (str[i] == '\n') str[i] = 0;
-	}
-}
-
-
 /**
  * Send resposne code on sockfd
  * Returns -1 on error, 0 on success
@@ -147,8 +127,6 @@ int send_response(int sockfd, int rc)
 	}
 	return 0;
 }
-
-
 
 
 /** 

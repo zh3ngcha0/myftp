@@ -100,7 +100,7 @@ int ftserve_list(int sock_data, int sock_control)
 	size_t num_read;									
 	FILE* fd;
 
-	int rs = system("ls -l | tail -n+2 > tmp.txt");
+	int rs = system("ls -l > tmp.txt");
 	if ( rs < 0) {
 		exit(1);
 	}
@@ -113,7 +113,7 @@ int ftserve_list(int sock_data, int sock_control)
 	/* Seek to the beginning of the file */
 	fseek(fd, SEEK_SET, 0);
 
-	send_response(sock_control, 1); //starting
+	send_response(sock_control, MSG_DATA_START); //starting
 
 	memset(data, 0, MAXSIZE);
 	while ((num_read = fread(data, 1, MAXSIZE, fd)) > 0) {
@@ -125,7 +125,7 @@ int ftserve_list(int sock_data, int sock_control)
 
 	fclose(fd);
 
-	send_response(sock_control, 226);	// send 226
+	send_response(sock_control, MSG_DATA_END);	// send 226
 
 	return 0;	
 }
@@ -165,106 +165,6 @@ int ftserve_start_data_conn(int sock_control)
 }
 
 
-
-
-
-/**
- * Authenticate a user's credentials
- * Return 1 if authenticated, 0 if not
- */
-int ftserve_check_user(char*user, char*pass)
-{
-	char username[MAXSIZE];
-	char password[MAXSIZE];
-	char *pch;
-	char buf[MAXSIZE];
-	char *line = NULL;
-	size_t num_read;									
-	size_t len = 0;
-	FILE* fd;
-	int auth = 0;
-	
-	fd = fopen(".auth", "r");
-	if (fd == NULL) {
-		perror("file not found");
-		exit(1);
-	}	
-
-	while ((num_read = getline(&line, &len, fd)) != -1) {
-		memset(buf, 0, MAXSIZE);
-		strcpy(buf, line);
-		
-		pch = strtok (buf," ");
-		strcpy(username, pch);
-
-		if (pch != NULL) {
-			pch = strtok (NULL, " ");
-			strcpy(password, pch);
-		}
-
-		// remove end of line and whitespace
-		trimstr(password, (int)strlen(password));
-
-		if ((strcmp(user,username)==0) && (strcmp(pass,password)==0)) {
-			auth = 1;
-			break;
-		}		
-	}
-	free(line);	
-	fclose(fd);	
-	return auth;
-}
-
-
-
-
-
-/** 
- * Log in connected client
- */
-int ftserve_login(int sock_control)
-{	
-	char buf[MAXSIZE];
-	char user[MAXSIZE];
-	char pass[MAXSIZE];	
-	memset(user, 0, MAXSIZE);
-	memset(pass, 0, MAXSIZE);
-	memset(buf, 0, MAXSIZE);
-	
-	// Wait to recieve username
-	if ( (recv_data(sock_control, buf, sizeof(buf)) ) == -1) {
-		perror("recv error\n"); 
-		exit(1);
-	}	
-
-	int i = 5;
-	int n = 0;
-	while (buf[i] != 0)
-		user[n++] = buf[i++];
-	
-	// tell client we're ready for password
-	send_response(sock_control, 331);					
-	
-	// Wait to recieve password
-	memset(buf, 0, MAXSIZE);
-	if ( (recv_data(sock_control, buf, sizeof(buf)) ) == -1) {
-		perror("recv error\n"); 
-		exit(1);
-	}
-	
-	i = 5;
-	n = 0;
-	while (buf[i] != 0) {
-		pass[n++] = buf[i++];
-	}
-	
-	return (ftserve_check_user(user, pass));
-}
-
-
-
-
-
 /**
  * Wait for command from client and
  * send response
@@ -290,12 +190,11 @@ int ftserve_recv_cmd(int sock_control, char*cmd, char*arg)
 	strcpy(arg, tmp);
 	
 	if (strcmp(cmd, "QUIT")==0) {
-		rc = 221;
-	} else if((strcmp(cmd, "USER")==0) || (strcmp(cmd, "PASS")==0) ||
-			(strcmp(cmd, "LIST")==0) || (strcmp(cmd, "RETR")==0)) {
-		rc = 200;
+		rc = MSG_QUIT;
+	} else if((strcmp(cmd, "LIST")==0) || (strcmp(cmd, "RETR")==0)) {
+		rc = MSG_CMD;
 	} else { //invalid command
-		rc = 502;
+		rc = MSG_INVALID;
 	}
 
 	send_response(sock_control, rc);	
@@ -317,25 +216,17 @@ void ftserve_process(int sock_control)
 	char arg[MAXSIZE];
 
 	// Send welcome message
-	send_response(sock_control, 220);
-
-	// Authenticate user
-	if (ftserve_login(sock_control) == 1) {
-		send_response(sock_control, 230);
-	} else {
-		send_response(sock_control, 430);	
-		exit(0);
-	}	
+	send_response(sock_control, CONNECT_OK);
 	
 	while (1) {
 		// Wait for command
 		int rc = ftserve_recv_cmd(sock_control, cmd, arg);
 		
-		if ((rc < 0) || (rc == 221)) {
+		if ((rc <= MIN_TYPE) || (rc == MSG_INVALID)) {
 			break;
 		}
 		
-		if (rc == 200 ) {
+		if (rc == MSG_CMD ) {
 			// Open data connection with client
 			if ((sock_data = ftserve_start_data_conn(sock_control)) < 0) {
 				close(sock_control);
