@@ -204,11 +204,6 @@ int main(int argc, char* argv[])
 	struct command cmd;
 	struct addrinfo hints, *res, *rp;
 
-	if (argc != 3) {
-		printf("usage: ./client \n");
-		exit(0);
-	}
-
     memset(&data_msg, 0, sizeof(data_msg));
 	char *host = "127.0.0.1";
 	char *port = SERVER_DEFAULT_PORT;

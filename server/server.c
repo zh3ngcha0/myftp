@@ -5,11 +5,6 @@ int main(int argc, char *argv[])
 {	
 	int sock_listen, sock_control, port, pid;
 
-	if (argc != 2) {
-		printf("usage: ./server \n");
-		exit(0);
-	}
-
 	port = SERVER_DEFAULT_PORT;
 
 	// create socket
