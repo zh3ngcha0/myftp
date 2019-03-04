@@ -187,7 +187,7 @@ int ftserve_recv_cmd(int sock_control, char*cmd, char*arg)
 		return -1;
 	}
 
-    memcpy(buffer, data_msg.cmd_data, ntohl(data_msg.len));  // get payload  
+    memcpy(buffer, &data_msg.cmd_data, ntohl(data_msg.len));  // get payload  
 	strncpy(cmd, buffer, 4);
 	char *tmp = buffer + 5;
 	strcpy(arg, tmp);
