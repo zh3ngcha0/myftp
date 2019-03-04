@@ -205,13 +205,13 @@ int main(int argc, char* argv[])
 	struct addrinfo hints, *res, *rp;
 
 	if (argc != 3) {
-		printf("usage: ./client hostname port\n");
+		printf("usage: ./client \n");
 		exit(0);
 	}
 
     memset(&data_msg, 0, sizeof(data_msg));
-	char *host = argv[1];
-	char *port = argv[2];
+	char *host = "127.0.0.1";
+	char *port = SERVER_DEFAULT_PORT;
 
 	// Get matching addresses
 	memset(&hints, 0, sizeof(struct addrinfo));
